@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>情绪记录 · Cry Tracker</title>
+<!-- PWA -->
+<link rel="manifest" href="./manifest.json">
+<meta name="theme-color" content="#6b6560">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="情绪记录">
+<link rel="apple-touch-icon" href="./icon-192.png">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: -apple-system, "PingFang SC", "Helvetica Neue", sans-serif;
+    background: #f5f3f0;
+    color: #333;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 16px 80px;
+  }
+
+  h1 {
+    font-size: 20px;
+    font-weight: 400;
+    color: #888;
+    margin-bottom: 32px;
+    letter-spacing: 2px;
+  }
+
+  .card {
+    background: #fff;
+    border-radius: 12px;
+    padding: 24px;
+    width: 100%;
+    max-width: 420px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    margin-bottom: 24px;
+  }
+
+  .btn-now {
+    display: block;
+    width: 100%;
+    padding: 14px;
+    border: none;
+    border-radius: 8px;
+    background: #e8e4df;
+    color: #555;
+    font-size: 16px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-bottom: 16px;
+  }
+  .btn-now:hover { background: #ddd8d2; }
+  .btn-now:active { background: #d0cbc5; }
+
+  textarea {
+    width: 100%;
+    min-height: 80px;
+    border: 1px solid #e0ddd9;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #faf9f7;
+  }
+  textarea:focus { border-color: #bbb7b2; }
+
+  .mood-row {
+    display: flex;
+    gap: 8px;
+    margin: 16px 0;
+  }
+  .mood-btn {
+    flex: 1;
+    padding: 10px 4px;
+    border: 1px solid #e0ddd9;
+    border-radius: 8px;
+    background: #faf9f7;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all 0.2s;
+    text-align: center;
+  }
+  .mood-btn:hover { border-color: #bbb7b2; }
+  .mood-btn.selected {
+    background: #e8e4df;
+    border-color: #ccc8c2;
+  }
+
+  .btn-save {
+    display: block;
+    width: 100%;
+    padding: 12px;
+    border: none;
+    border-radius: 8px;
+    background: #6b6560;
+    color: #fff;
+    font-size: 15px;
+    cursor: pointer;
+    transition: background 0.2s;
+    margin-top: 8px;
+  }
+  .btn-save:hover { background: #5a544f; }
+
+  .history-title {
+    font-size: 14px;
+    color: #999;
+    margin-bottom: 12px;
+    letter-spacing: 1px;
+  }
+
+  .entry {
+    padding: 12px 0;
+    border-bottom: 1px solid #f0eeec;
+  }
+  .entry:last-child { border-bottom: none; }
+
+  .entry-time {
+    font-size: 12px;
+    color: #aaa;
+    margin-bottom: 4px;
+  }
+
+  .entry-mood {
+    font-size: 13px;
+    color: #777;
+    margin-bottom: 4px;
+  }
+
+  .entry-note {
+    font-size: 14px;
+    color: #555;
+    line-height: 1.6;
+    white-space: pre-wrap;
+    word-break: break-all;
+  }
+
+  .entry-delete {
+    float: right;
+    background: none;
+    border: none;
+    color: #ccc;
+    cursor: pointer;
+    font-size: 14px;
+    padding: 2px 6px;
+    border-radius: 4px;
+    transition: color 0.2s;
+  }
+  .entry-delete:hover { color: #e55; }
+
+  .empty {
+    text-align: center;
+    color: #bbb;
+    font-size: 14px;
+    padding: 24px 0;
+  }
+
+  .toast {
+    position: fixed;
+    bottom: 32px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: #333;
+    color: #fff;
+    padding: 10px 24px;
+    border-radius: 20px;
+    font-size: 14px;
+    opacity: 0;
+    transition: all 0.3s;
+    pointer-events: none;
+  }
+  .toast.show {
+    opacity: 1;
+    transform: translateX(-50%) translateY(0);
+  }
+
+  .stats {
+    font-size: 12px;
+    color: #bbb;
+    text-align: center;
+    margin-top: 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🌧 情绪记录</h1>
+
+<div class="card">
+  <button class="btn-now" onclick="fillNow()">记录此刻</button>
+  <div id="selectedTime" style="font-size:13px;color:#999;margin-bottom:8px;min-height:20px;"></div>
+
+  <div class="mood-row">
+    <button class="mood-btn" data-mood="低落" onclick="selectMood(this)">😔 低落</button>
+    <button class="mood-btn" data-mood="委屈" onclick="selectMood(this)">🥺 委屈</button>
+    <button class="mood-btn" data-mood="崩溃" onclick="selectMood(this)">😭 崩溃</button>
+    <button class="mood-btn" data-mood="无力" onclick="selectMood(this)">😞 无力</button>
+    <button class="mood-btn" data-mood="焦虑" onclick="selectMood(this)">😰 焦虑</button>
+  </div>
+
+  <textarea id="note" placeholder="想说点什么…（可选）"></textarea>
+
+  <button class="btn-save" onclick="save()">保存</button>
+</div>
+
+<div class="card">
+  <div class="history-title">过往记录</div>
+  <div id="history"></div>
+  <div class="stats" id="stats"></div>
+</div>
+
+<div class="toast" id="toast">已保存</div>
+
+<script>
+  const STORAGE_KEY = 'cry_tracker_entries';
+  let selectedMood = '';
+  let selectedTimeStr = '';
+
+  function load() {
+    try {
+      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
+    } catch { return []; }
+  }
+
+  function saveEntries(entries) {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
+  }
+
+  function fillNow() {
+    const now = new Date();
+    selectedTimeStr = formatFull(now);
+    document.getElementById('selectedTime').textContent = selectedTimeStr;
+  }
+
+  function formatFull(d) {
+    const Y = d.getFullYear();
+    const M = String(d.getMonth()+1).padStart(2,'0');
+    const D = String(d.getDate()).padStart(2,'0');
+    const h = String(d.getHours()).padStart(2,'0');
+    const m = String(d.getMinutes()).padStart(2,'0');
+    return `${Y}-${M}-${D} ${h}:${m}`;
+  }
+
+  function formatShort(dateStr) {
+    const d = new Date(dateStr);
+    const now = new Date();
+    const diff = now - d;
+    const mins = Math.floor(diff / 60000);
+    const hours = Math.floor(diff / 3600000);
+    const days = Math.floor(diff / 86400000);
+
+    if (mins < 1) return '刚刚';
+    if (mins < 60) return `${mins} 分钟前`;
+    if (hours < 24) return `${hours} 小时前`;
+    if (days < 7) return `${days} 天前`;
+    return formatFull(d);
+  }
+
+  function selectMood(btn) {
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    selectedMood = btn.dataset.mood;
+  }
+
+  function save() {
+    const note = document.getElementById('note').value.trim();
+    if (!selectedTimeStr && !note && !selectedMood) return;
+
+    const time = selectedTimeStr || formatFull(new Date());
+
+    const entry = {
+      id: Date.now(),
+      time: time,
+      mood: selectedMood,
+      note: note
+    };
+
+    const entries = load();
+    entries.unshift(entry);
+    saveEntries(entries);
+
+    // Reset
+    selectedMood = '';
+    selectedTimeStr = '';
+    document.getElementById('note').value = '';
+    document.getElementById('selectedTime').textContent = '';
+    document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
+
+    render();
+    showToast('已保存 🌧');
+  }
+
+  function remove(id) {
+    const entries = load().filter(e => e.id !== id);
+    saveEntries(entries);
+    render();
+  }
+
+  function render() {
+    const entries = load();
+    const container = document.getElementById('history');
+
+    if (entries.length === 0) {
+      container.innerHTML = '<div class="empty">还没有记录，抱抱你 🤍</div>';
+      document.getElementById('stats').textContent = '';
+      return;
+    }
+
+    let html = '';
+    entries.forEach(e => {
+      html += `<div class="entry">
+        <button class="entry-delete" onclick="remove(${e.id})">✕</button>
+        <div class="entry-time">${formatShort(e.time)}</div>
+        ${e.mood ? `<div class="entry-mood">${e.mood}</div>` : ''}
+        ${e.note ? `<div class="entry-note">${escapeHtml(e.note)}</div>` : ''}
+      </div>`;
+    });
+
+    container.innerHTML = html;
+
+    // Stats
+    const now = new Date();
+    const thisWeek = entries.filter(e => (now - new Date(e.time)) < 7*86400000).length;
+    const thisMonth = entries.filter(e => (now - new Date(e.time)) < 30*86400000).length;
+    document.getElementById('stats').textContent =
+      `本周 ${thisWeek} 次 · 本月 ${thisMonth} 次 · 共 ${entries.length} 次`;
+  }
+
+  function escapeHtml(str) {
+    const div = document.createElement('div');
+    div.textContent = str;
+    return div.innerHTML;
+  }
+
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    setTimeout(() => t.classList.remove('show'), 1500);
+  }
+
+  render();
+</script>
+<!-- PWA Service Worker -->
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('./sw.js');
+    });
+  }
+</script>
+</body>
+</html>
