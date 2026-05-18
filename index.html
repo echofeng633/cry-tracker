@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
 <title>情绪记录 · Cry Tracker</title>
-<!-- PWA -->
 <link rel="manifest" href="./manifest.json">
 <meta name="theme-color" content="#6b6560">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -19,30 +18,31 @@
     background: #f5f3f0;
     color: #333;
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding: 40px 16px 80px;
+    min-height: 100dvh;
+    padding-bottom: 72px;
   }
 
   h1 {
     font-size: 20px;
     font-weight: 400;
     color: #888;
-    margin-bottom: 32px;
     letter-spacing: 2px;
+    text-align: center;
+    padding: 20px 16px 0;
   }
+
+  .page { display: none; padding: 16px; max-width: 480px; margin: 0 auto; }
+  .page.active { display: block; }
 
   .card {
     background: #fff;
     border-radius: 12px;
-    padding: 24px;
-    width: 100%;
-    max-width: 420px;
+    padding: 20px;
+    margin-bottom: 16px;
     box-shadow: 0 2px 8px rgba(0,0,0,0.04);
-    margin-bottom: 24px;
   }
 
+  /* ===== 记录页 ===== */
   .btn-now {
     display: block;
     width: 100%;
@@ -54,14 +54,54 @@
     font-size: 16px;
     cursor: pointer;
     transition: background 0.2s;
-    margin-bottom: 16px;
   }
-  .btn-now:hover { background: #ddd8d2; }
   .btn-now:active { background: #d0cbc5; }
+
+  .time-display {
+    font-size: 13px;
+    color: #999;
+    margin-top: 8px;
+    min-height: 20px;
+  }
+
+  .mood-section-label {
+    font-size: 12px;
+    color: #bbb;
+    margin: 16px 0 8px;
+    letter-spacing: 1px;
+  }
+
+  .mood-row {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+  }
+  .mood-btn {
+    flex: 1 0 auto;
+    min-width: 56px;
+    padding: 8px 6px;
+    border: 1px solid #e0ddd9;
+    border-radius: 8px;
+    background: #faf9f7;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.15s;
+    text-align: center;
+  }
+  .mood-btn:active { transform: scale(0.95); }
+  .mood-btn.selected {
+    background: #6b6560;
+    color: #fff;
+    border-color: #6b6560;
+  }
+  .mood-btn.positive.selected {
+    background: #8ab38a;
+    border-color: #8ab38a;
+  }
 
   textarea {
     width: 100%;
-    min-height: 80px;
+    min-height: 72px;
     border: 1px solid #e0ddd9;
     border-radius: 8px;
     padding: 12px;
@@ -69,32 +109,10 @@
     font-family: inherit;
     resize: vertical;
     outline: none;
-    transition: border-color 0.2s;
     background: #faf9f7;
+    margin-top: 12px;
   }
   textarea:focus { border-color: #bbb7b2; }
-
-  .mood-row {
-    display: flex;
-    gap: 8px;
-    margin: 16px 0;
-  }
-  .mood-btn {
-    flex: 1;
-    padding: 10px 4px;
-    border: 1px solid #e0ddd9;
-    border-radius: 8px;
-    background: #faf9f7;
-    font-size: 14px;
-    cursor: pointer;
-    transition: all 0.2s;
-    text-align: center;
-  }
-  .mood-btn:hover { border-color: #bbb7b2; }
-  .mood-btn.selected {
-    background: #e8e4df;
-    border-color: #ccc8c2;
-  }
 
   .btn-save {
     display: block;
@@ -106,16 +124,30 @@
     color: #fff;
     font-size: 15px;
     cursor: pointer;
-    transition: background 0.2s;
-    margin-top: 8px;
+    margin-top: 12px;
   }
-  .btn-save:hover { background: #5a544f; }
+  .btn-save:active { background: #5a544f; }
 
-  .history-title {
-    font-size: 14px;
-    color: #999;
+  /* ===== 历史页 ===== */
+  .filter-bar {
+    display: flex;
+    gap: 6px;
     margin-bottom: 12px;
-    letter-spacing: 1px;
+    flex-wrap: wrap;
+  }
+  .filter-btn {
+    padding: 6px 12px;
+    border: 1px solid #e0ddd9;
+    border-radius: 16px;
+    background: #fff;
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+  }
+  .filter-btn.active {
+    background: #6b6560;
+    color: #fff;
+    border-color: #6b6560;
   }
 
   .entry {
@@ -123,50 +155,145 @@
     border-bottom: 1px solid #f0eeec;
   }
   .entry:last-child { border-bottom: none; }
-
-  .entry-time {
-    font-size: 12px;
-    color: #aaa;
-    margin-bottom: 4px;
-  }
-
-  .entry-mood {
-    font-size: 13px;
-    color: #777;
-    margin-bottom: 4px;
-  }
-
+  .entry-time { font-size: 12px; color: #aaa; margin-bottom: 4px; }
+  .entry-mood { font-size: 13px; margin-bottom: 4px; }
+  .entry-mood.negative { color: #a07070; }
+  .entry-mood.positive { color: #6a906a; }
   .entry-note {
     font-size: 14px;
     color: #555;
     line-height: 1.6;
     white-space: pre-wrap;
-    word-break: break-all;
   }
-
   .entry-delete {
     float: right;
     background: none;
     border: none;
-    color: #ccc;
+    color: #ddd;
     cursor: pointer;
     font-size: 14px;
     padding: 2px 6px;
-    border-radius: 4px;
-    transition: color 0.2s;
   }
-  .entry-delete:hover { color: #e55; }
+  .entry-delete:active { color: #e55; }
 
   .empty {
     text-align: center;
     color: #bbb;
     font-size: 14px;
-    padding: 24px 0;
+    padding: 32px 0;
   }
+
+  /* ===== 统计页 ===== */
+  .stat-card { text-align: center; }
+  .stat-num {
+    font-size: 32px;
+    font-weight: 600;
+    color: #6b6560;
+  }
+  .stat-label {
+    font-size: 12px;
+    color: #aaa;
+    margin-top: 4px;
+  }
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+  }
+
+  .mood-chart { margin-top: 4px; }
+  .mood-bar-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 10px;
+  }
+  .mood-bar-label {
+    width: 60px;
+    font-size: 13px;
+    color: #777;
+    text-align: right;
+    margin-right: 10px;
+    flex-shrink: 0;
+  }
+  .mood-bar-bg {
+    flex: 1;
+    height: 8px;
+    background: #f0eeec;
+    border-radius: 4px;
+    overflow: hidden;
+  }
+  .mood-bar-fill {
+    height: 100%;
+    border-radius: 4px;
+    transition: width 0.4s;
+  }
+  .mood-bar-count {
+    width: 30px;
+    font-size: 12px;
+    color: #aaa;
+    margin-left: 8px;
+    flex-shrink: 0;
+  }
+
+  .week-chart { margin-top: 8px; }
+  .week-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 0;
+    border-bottom: 1px solid #f5f3f0;
+  }
+  .week-day { font-size: 13px; color: #888; width: 50px; }
+  .week-dots { display: flex; gap: 3px; }
+  .week-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: #e8e4df;
+  }
+  .week-dot.negative { background: #c09090; }
+  .week-dot.positive { background: #8ab38a; }
+
+  .insight {
+    font-size: 14px;
+    color: #777;
+    line-height: 1.7;
+    padding: 4px 0;
+  }
+
+  /* ===== 底部导航 ===== */
+  .tab-bar {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 64px;
+    background: #fff;
+    border-top: 1px solid #e8e6e3;
+    display: flex;
+    padding-bottom: env(safe-area-inset-bottom, 0);
+    z-index: 100;
+  }
+  .tab-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 2px;
+    background: none;
+    border: none;
+    font-size: 11px;
+    color: #bbb;
+    cursor: pointer;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .tab-item.active { color: #6b6560; }
+  .tab-icon { font-size: 22px; line-height: 1; }
 
   .toast {
     position: fixed;
-    bottom: 32px;
+    bottom: 80px;
     left: 50%;
     transform: translateX(-50%) translateY(20px);
     background: #333;
@@ -177,87 +304,152 @@
     opacity: 0;
     transition: all 0.3s;
     pointer-events: none;
+    z-index: 200;
   }
-  .toast.show {
-    opacity: 1;
-    transform: translateX(-50%) translateY(0);
-  }
-
-  .stats {
-    font-size: 12px;
-    color: #bbb;
-    text-align: center;
-    margin-top: 8px;
-  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
 </style>
 </head>
 <body>
 
 <h1>🌧 情绪记录</h1>
 
-<div class="card">
-  <button class="btn-now" onclick="fillNow()">记录此刻</button>
-  <div id="selectedTime" style="font-size:13px;color:#999;margin-bottom:8px;min-height:20px;"></div>
+<!-- ====== 记录页 ====== -->
+<div class="page active" id="pageRecord">
+  <div class="card">
+    <button class="btn-now" onclick="fillNow()">记录此刻</button>
+    <div class="time-display" id="selectedTime"></div>
 
-  <div class="mood-row">
-    <button class="mood-btn" data-mood="低落" onclick="selectMood(this)">😔 低落</button>
-    <button class="mood-btn" data-mood="委屈" onclick="selectMood(this)">🥺 委屈</button>
-    <button class="mood-btn" data-mood="崩溃" onclick="selectMood(this)">😭 崩溃</button>
-    <button class="mood-btn" data-mood="无力" onclick="selectMood(this)">😞 无力</button>
-    <button class="mood-btn" data-mood="焦虑" onclick="selectMood(this)">😰 焦虑</button>
+    <div class="mood-section-label">低能量</div>
+    <div class="mood-row">
+      <button class="mood-btn" data-mood="😔 低落" onclick="selectMood(this)">😔 低落</button>
+      <button class="mood-btn" data-mood="🥺 委屈" onclick="selectMood(this)">🥺 委屈</button>
+      <button class="mood-btn" data-mood="😭 崩溃" onclick="selectMood(this)">😭 崩溃</button>
+      <button class="mood-btn" data-mood="😞 无力" onclick="selectMood(this)">😞 无力</button>
+      <button class="mood-btn" data-mood="😰 焦虑" onclick="selectMood(this)">😰 焦虑</button>
+      <button class="mood-btn" data-mood="😤 烦躁" onclick="selectMood(this)">😤 烦躁</button>
+      <button class="mood-btn" data-mood="😶 麻木" onclick="selectMood(this)">😶 麻木</button>
+      <button class="mood-btn" data-mood="💔 心碎" onclick="selectMood(this)">💔 心碎</button>
+    </div>
+
+    <div class="mood-section-label">高能量 ✨</div>
+    <div class="mood-row">
+      <button class="mood-btn positive" data-mood="😊 开心" onclick="selectMood(this)">😊 开心</button>
+      <button class="mood-btn positive" data-mood="🍃 平静" onclick="selectMood(this)">🍃 平静</button>
+      <button class="mood-btn positive" data-mood="💛 感动" onclick="selectMood(this)">💛 感动</button>
+      <button class="mood-btn positive" data-mood="🙏 感恩" onclick="selectMood(this)">🙏 感恩</button>
+      <button class="mood-btn positive" data-mood="⚡ 充满能量" onclick="selectMood(this)">⚡ 充满能量</button>
+      <button class="mood-btn positive" data-mood="😌 释然" onclick="selectMood(this)">😌 释然</button>
+      <button class="mood-btn positive" data-mood="🥰 被爱" onclick="selectMood(this)">🥰 被爱</button>
+      <button class="mood-btn positive" data-mood="😎 自信" onclick="selectMood(this)">😎 自信</button>
+    </div>
+
+    <textarea id="note" placeholder="想说点什么…（可选）"></textarea>
+    <button class="btn-save" onclick="save()">保存</button>
   </div>
-
-  <textarea id="note" placeholder="想说点什么…（可选）"></textarea>
-
-  <button class="btn-save" onclick="save()">保存</button>
 </div>
 
-<div class="card">
-  <div class="history-title">过往记录</div>
-  <div id="history"></div>
-  <div class="stats" id="stats"></div>
+<!-- ====== 历史页 ====== -->
+<div class="page" id="pageHistory">
+  <div class="filter-bar" id="filterBar">
+    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全部</button>
+    <button class="filter-btn" data-filter="😔 低落" onclick="setFilter('😔 低落')">低落</button>
+    <button class="filter-btn" data-filter="😭 崩溃" onclick="setFilter('😭 崩溃')">崩溃</button>
+    <button class="filter-btn" data-filter="😰 焦虑" onclick="setFilter('😰 焦虑')">焦虑</button>
+    <button class="filter-btn" data-filter="😊 开心" onclick="setFilter('😊 开心')">开心</button>
+    <button class="filter-btn" data-filter="🍃 平静" onclick="setFilter('🍃 平静')">平静</button>
+  </div>
+  <div class="card">
+    <div id="history"></div>
+  </div>
+</div>
+
+<!-- ====== 统计页 ====== -->
+<div class="page" id="pageStats">
+  <div class="stats-row">
+    <div class="card stat-card">
+      <div class="stat-num" id="statTotal">0</div>
+      <div class="stat-label">总计</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-num" id="statWeek">0</div>
+      <div class="stat-label">本周</div>
+    </div>
+    <div class="card stat-card">
+      <div class="stat-num" id="statToday">0</div>
+      <div class="stat-label">今天</div>
+    </div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:14px;color:#999;margin-bottom:12px;letter-spacing:1px;">情绪分布</div>
+    <div class="mood-chart" id="moodChart"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:14px;color:#999;margin-bottom:12px;letter-spacing:1px;">近 7 天</div>
+    <div class="week-chart" id="weekChart"></div>
+  </div>
+
+  <div class="card">
+    <div style="font-size:14px;color:#999;margin-bottom:12px;letter-spacing:1px;">小洞察</div>
+    <div class="insight" id="insight"></div>
+  </div>
+</div>
+
+<!-- 底部导航 -->
+<div class="tab-bar">
+  <button class="tab-item active" onclick="switchTab('pageRecord', this)">
+    <span class="tab-icon">✏️</span>
+    <span>记录</span>
+  </button>
+  <button class="tab-item" onclick="switchTab('pageHistory', this)">
+    <span class="tab-icon">📋</span>
+    <span>记录</span>
+  </button>
+  <button class="tab-item" onclick="switchTab('pageStats', this)">
+    <span class="tab-icon">📊</span>
+    <span>统计</span>
+  </button>
 </div>
 
 <div class="toast" id="toast">已保存</div>
 
 <script>
   const STORAGE_KEY = 'cry_tracker_entries';
-  let selectedMood = '';
-  let selectedTimeStr = '';
+  const MOOD_COLORS = {
+    '😔 低落': '#a07070', '🥺 委屈': '#b08080', '😭 崩溃': '#c05050',
+    '😞 无力': '#908080', '😰 焦虑': '#b09060', '😤 烦躁': '#c07050',
+    '😶 麻木': '#888888', '💔 心碎': '#c06070',
+    '😊 开心': '#8ab38a', '🍃 平静': '#6a9a7a', '💛 感动': '#c0a050',
+    '🙏 感恩': '#b0a060', '⚡ 充满能量': '#e0a030', '😌 释然': '#70a0a0',
+    '🥰 被爱': '#d08080', '😎 自信': '#6090b0'
+  };
 
-  function load() {
-    try {
-      return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]');
-    } catch { return []; }
+  function isPositive(mood) {
+    return ['😊','🍃','💛','🙏','⚡','😌','🥰','😎'].some(e => mood && mood.startsWith(e));
   }
 
-  function saveEntries(entries) {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(entries));
-  }
+  let selectedMood = '', selectedTimeStr = '', currentFilter = 'all';
+
+  // ===== 数据操作 =====
+  function load() { try { return JSON.parse(localStorage.getItem(STORAGE_KEY) || '[]'); } catch { return []; } }
+  function saveEntries(entries) { localStorage.setItem(STORAGE_KEY, JSON.stringify(entries)); }
 
   function fillNow() {
-    const now = new Date();
-    selectedTimeStr = formatFull(now);
+    selectedTimeStr = formatFull(new Date());
     document.getElementById('selectedTime').textContent = selectedTimeStr;
   }
 
   function formatFull(d) {
-    const Y = d.getFullYear();
-    const M = String(d.getMonth()+1).padStart(2,'0');
-    const D = String(d.getDate()).padStart(2,'0');
-    const h = String(d.getHours()).padStart(2,'0');
-    const m = String(d.getMinutes()).padStart(2,'0');
+    const Y = d.getFullYear(), M = String(d.getMonth()+1).padStart(2,'0'),
+          D = String(d.getDate()).padStart(2,'0'), h = String(d.getHours()).padStart(2,'0'),
+          m = String(d.getMinutes()).padStart(2,'0');
     return `${Y}-${M}-${D} ${h}:${m}`;
   }
 
   function formatShort(dateStr) {
-    const d = new Date(dateStr);
-    const now = new Date();
-    const diff = now - d;
-    const mins = Math.floor(diff / 60000);
-    const hours = Math.floor(diff / 3600000);
-    const days = Math.floor(diff / 86400000);
-
+    const d = new Date(dateStr), now = new Date(), diff = now - d;
+    const mins = Math.floor(diff/60000), hours = Math.floor(diff/3600000), days = Math.floor(diff/86400000);
     if (mins < 1) return '刚刚';
     if (mins < 60) return `${mins} 分钟前`;
     if (hours < 24) return `${hours} 小时前`;
@@ -274,89 +466,117 @@
   function save() {
     const note = document.getElementById('note').value.trim();
     if (!selectedTimeStr && !note && !selectedMood) return;
-
     const time = selectedTimeStr || formatFull(new Date());
-
-    const entry = {
-      id: Date.now(),
-      time: time,
-      mood: selectedMood,
-      note: note
-    };
-
     const entries = load();
-    entries.unshift(entry);
+    entries.unshift({ id: Date.now(), time, mood: selectedMood, note });
     saveEntries(entries);
-
-    // Reset
-    selectedMood = '';
-    selectedTimeStr = '';
+    selectedMood = ''; selectedTimeStr = '';
     document.getElementById('note').value = '';
     document.getElementById('selectedTime').textContent = '';
     document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
-
-    render();
-    showToast('已保存 🌧');
+    showToast('已保存 🤍');
   }
 
-  function remove(id) {
-    const entries = load().filter(e => e.id !== id);
-    saveEntries(entries);
-    render();
+  function remove(id) { saveEntries(load().filter(e => e.id !== id)); renderHistory(); renderStats(); }
+
+  // ===== Tab 切换 =====
+  function switchTab(pageId, btn) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+    btn.classList.add('active');
+    if (pageId === 'pageHistory') renderHistory();
+    if (pageId === 'pageStats') renderStats();
   }
 
-  function render() {
-    const entries = load();
-    const container = document.getElementById('history');
+  // ===== 历史记录 =====
+  function setFilter(f) {
+    currentFilter = f;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.toggle('active', b.dataset.filter === f));
+    renderHistory();
+  }
 
-    if (entries.length === 0) {
-      container.innerHTML = '<div class="empty">还没有记录，抱抱你 🤍</div>';
-      document.getElementById('stats').textContent = '';
-      return;
-    }
-
-    let html = '';
-    entries.forEach(e => {
-      html += `<div class="entry">
+  function renderHistory() {
+    let entries = load();
+    if (currentFilter !== 'all') entries = entries.filter(e => e.mood === currentFilter);
+    const c = document.getElementById('history');
+    if (!entries.length) { c.innerHTML = '<div class="empty">暂无记录 🤍</div>'; return; }
+    c.innerHTML = entries.map(e => {
+      const cls = isPositive(e.mood) ? 'positive' : 'negative';
+      return `<div class="entry">
         <button class="entry-delete" onclick="remove(${e.id})">✕</button>
         <div class="entry-time">${formatShort(e.time)}</div>
-        ${e.mood ? `<div class="entry-mood">${e.mood}</div>` : ''}
+        ${e.mood ? `<div class="entry-mood ${cls}">${e.mood}</div>` : ''}
         ${e.note ? `<div class="entry-note">${escapeHtml(e.note)}</div>` : ''}
       </div>`;
-    });
-
-    container.innerHTML = html;
-
-    // Stats
-    const now = new Date();
-    const thisWeek = entries.filter(e => (now - new Date(e.time)) < 7*86400000).length;
-    const thisMonth = entries.filter(e => (now - new Date(e.time)) < 30*86400000).length;
-    document.getElementById('stats').textContent =
-      `本周 ${thisWeek} 次 · 本月 ${thisMonth} 次 · 共 ${entries.length} 次`;
+    }).join('');
   }
 
-  function escapeHtml(str) {
-    const div = document.createElement('div');
-    div.textContent = str;
-    return div.innerHTML;
+  // ===== 统计 =====
+  function renderStats() {
+    const entries = load(), now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}-${String(now.getDate()).padStart(2,'0')}`;
+    document.getElementById('statTotal').textContent = entries.length;
+    document.getElementById('statWeek').textContent = entries.filter(e => (now - new Date(e.time)) < 7*86400000).length;
+    document.getElementById('statToday').textContent = entries.filter(e => e.time.startsWith(today)).length;
+
+    // 情绪分布
+    const moodCount = {};
+    entries.forEach(e => { if (e.mood) moodCount[e.mood] = (moodCount[e.mood]||0)+1; });
+    const sorted = Object.entries(moodCount).sort((a,b) => b[1]-a[1]);
+    const maxCount = sorted.length ? sorted[0][1] : 1;
+    const chartEl = document.getElementById('moodChart');
+    if (!sorted.length) {
+      chartEl.innerHTML = '<div class="empty">暂无数据</div>';
+    } else {
+      chartEl.innerHTML = sorted.map(([mood, count]) =>
+        `<div class="mood-bar-row">
+          <span class="mood-bar-label">${mood}</span>
+          <div class="mood-bar-bg"><div class="mood-bar-fill" style="width:${count/maxCount*100}%;background:${MOOD_COLORS[mood]||'#aaa'}"></div></div>
+          <span class="mood-bar-count">${count}</span>
+        </div>`
+      ).join('');
+    }
+
+    // 近7天
+    const dayNames = ['日','一','二','三','四','五','六'];
+    const weekEl = document.getElementById('weekChart');
+    let weekHtml = '';
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date(now); d.setDate(d.getDate() - i);
+      const ds = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+      const dayEntries = entries.filter(e => e.time.startsWith(ds));
+      const dots = dayEntries.map(e => `<span class="week-dot ${isPositive(e.mood)?'positive':'negative'}"></span>`).join('');
+      const label = i === 0 ? '今天' : `周${dayNames[d.getDay()]}`;
+      weekHtml += `<div class="week-row"><span class="week-day">${label}</span><div class="week-dots">${dots || '<span style="color:#ddd;font-size:12px">—</span>'}</div></div>`;
+    }
+    weekEl.innerHTML = weekHtml;
+
+    // 小洞察
+    const insightEl = document.getElementById('insight');
+    if (entries.length < 2) {
+      insightEl.textContent = '记录更多之后，会帮你发现情绪的小规律 🌱';
+    } else {
+      const posCount = entries.filter(e => isPositive(e.mood)).length;
+      const negCount = entries.length - posCount;
+      const posRate = Math.round(posCount / entries.length * 100);
+      const topMood = sorted[0] ? sorted[0][0] : '';
+      const insights = [
+        `共记录了 ${entries.length} 次情绪，其中 ${posRate}% 是积极的 ✨`,
+        `最近出现最多的情绪是「${topMood}」`,
+        `今天记录了 ${entries.filter(e=>e.time.startsWith(today)).length} 次`,
+        posRate > 50 ? '总体情绪还不错，继续保持 🌞' : '最近低能量时刻多一些，记得照顾好自己 🤍',
+        `最早的一次记录是在 ${entries[entries.length-1].time.split(' ')[0]}`
+      ];
+      insightEl.innerHTML = insights.map(s => `<div>· ${s}</div>`).join('');
+    }
   }
 
-  function showToast(msg) {
-    const t = document.getElementById('toast');
-    t.textContent = msg;
-    t.classList.add('show');
-    setTimeout(() => t.classList.remove('show'), 1500);
-  }
+  function escapeHtml(str) { const d = document.createElement('div'); d.textContent = str; return d.innerHTML; }
+  function showToast(msg) { const t = document.getElementById('toast'); t.textContent = msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),1500); }
 
-  render();
-</script>
-<!-- PWA Service Worker -->
-<script>
-  if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-      navigator.serviceWorker.register('./sw.js');
-    });
-  }
+  // PWA
+  if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
 </script>
 </body>
 </html>
