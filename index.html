@@ -346,19 +346,17 @@
     <textarea id="note" placeholder="想说点什么…（可选）"></textarea>
     <button class="btn-save" onclick="save()">保存</button>
   </div>
-</div>
 
-<!-- ====== 历史页 ====== -->
-<div class="page" id="pageHistory">
-  <div class="filter-bar" id="filterBar">
-    <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全部</button>
-    <button class="filter-btn" data-filter="😔 低落" onclick="setFilter('😔 低落')">低落</button>
-    <button class="filter-btn" data-filter="😭 崩溃" onclick="setFilter('😭 崩溃')">崩溃</button>
-    <button class="filter-btn" data-filter="😰 焦虑" onclick="setFilter('😰 焦虑')">焦虑</button>
-    <button class="filter-btn" data-filter="😊 开心" onclick="setFilter('😊 开心')">开心</button>
-    <button class="filter-btn" data-filter="🍃 平静" onclick="setFilter('🍃 平静')">平静</button>
-  </div>
+  <!-- 历史记录 -->
   <div class="card">
+    <div class="filter-bar" id="filterBar" style="margin-bottom:12px;">
+      <button class="filter-btn active" data-filter="all" onclick="setFilter('all')">全部</button>
+      <button class="filter-btn" data-filter="😔 低落" onclick="setFilter('😔 低落')">低落</button>
+      <button class="filter-btn" data-filter="😭 崩溃" onclick="setFilter('😭 崩溃')">崩溃</button>
+      <button class="filter-btn" data-filter="😰 焦虑" onclick="setFilter('😰 焦虑')">焦虑</button>
+      <button class="filter-btn" data-filter="😊 开心" onclick="setFilter('😊 开心')">开心</button>
+      <button class="filter-btn" data-filter="🍃 平静" onclick="setFilter('🍃 平静')">平静</button>
+    </div>
     <div id="history"></div>
   </div>
 </div>
@@ -400,10 +398,6 @@
 <div class="tab-bar">
   <button class="tab-item active" onclick="switchTab('pageRecord', this)">
     <span class="tab-icon">✏️</span>
-    <span>记录</span>
-  </button>
-  <button class="tab-item" onclick="switchTab('pageHistory', this)">
-    <span class="tab-icon">📋</span>
     <span>记录</span>
   </button>
   <button class="tab-item" onclick="switchTab('pageStats', this)">
@@ -475,6 +469,8 @@
     document.getElementById('selectedTime').textContent = '';
     document.querySelectorAll('.mood-btn').forEach(b => b.classList.remove('selected'));
     showToast('已保存 🤍');
+    renderHistory();
+    renderStats();
   }
 
   function remove(id) { saveEntries(load().filter(e => e.id !== id)); renderHistory(); renderStats(); }
@@ -485,7 +481,7 @@
     document.getElementById(pageId).classList.add('active');
     document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
     btn.classList.add('active');
-    if (pageId === 'pageHistory') renderHistory();
+    if (pageId === 'pageRecord') renderHistory();
     if (pageId === 'pageStats') renderStats();
   }
 
@@ -577,6 +573,9 @@
 
   // PWA
   if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('./sw.js'));
+
+  renderHistory();
+  renderStats();
 </script>
 </body>
 </html>
